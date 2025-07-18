@@ -8,6 +8,7 @@ public class ZerowaitApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ZerowaitApplication.class, args);
+		System.out.println("Service Started Successfully!!!");
 	}
 
 }
