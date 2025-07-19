@@ -13,7 +13,7 @@ public class UserLoginRequest {
 
     @NotNull(message = "Mobile cannot be null")
     @Pattern(regexp = "^[0-9]{10}$", message = "Mobile must be exactly 10 digits (numbers only)")
-    private Long mobile;
+    private String mobile;
 
     @NotBlank(message = "Secret cannot be blank")
     @Size(min = 3, message = "Secret must be at least 3 characters")

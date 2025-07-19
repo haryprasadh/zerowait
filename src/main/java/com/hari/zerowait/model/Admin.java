@@ -13,7 +13,7 @@ import java.util.List;
 @Document(collection = "admins")
 public class Admin {
     @Id
-    private Long id;
+    private String id;
     private String name;
     private String secret;
     private String sessionId;

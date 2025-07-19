@@ -7,14 +7,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Setter
 @Getter
-@Document(collection="users")
-public class User {
+@Setter
+@Document(collection = "queues")
+public class Queue {
     @Id
-    private String id;
-    private String name;
-    private String secret;
-    private String sessionId;
-    private List<String> locations;
+    private String locationId;
+    private String locationName;
+    private String openStatus;
+    private List<Token> tokens;
 }

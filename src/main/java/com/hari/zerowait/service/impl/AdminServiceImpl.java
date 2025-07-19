@@ -4,7 +4,9 @@ import com.hari.zerowait.dto.AdminLoginRequest;
 import com.hari.zerowait.dto.AdminLoginResponse;
 import com.hari.zerowait.dto.Location;
 import com.hari.zerowait.model.Admin;
+import com.hari.zerowait.model.Queue;
 import com.hari.zerowait.repository.AdminRepository;
+import com.hari.zerowait.repository.QueueRepository;
 import com.hari.zerowait.service.AdminService;
 import org.springframework.stereotype.Service;
 
@@ -16,23 +18,40 @@ import java.util.UUID;
 @Service
 public class AdminServiceImpl implements AdminService {
 
-    private AdminRepository repo;
+    private final AdminRepository adminRepository;
 
-    public AdminServiceImpl(AdminRepository adminRepository){
-        this.repo = adminRepository;
+    private final QueueRepository queueRepository;
+
+    public AdminServiceImpl(AdminRepository adminRepository, QueueRepository queueRepository){
+        this.adminRepository = adminRepository;
+        this.queueRepository = queueRepository;
     }
 
     @Override
     public AdminLoginResponse login(AdminLoginRequest adminLoginRequest) {
-        Long mobile = adminLoginRequest.getMobile();
+        String mobile = adminLoginRequest.getMobile();
         String name = adminLoginRequest.getName();
         String secret = adminLoginRequest.getSecret();
         String locationName = adminLoginRequest.getLocationName();
 
-        Optional<Admin> existing = repo.findById(mobile);
+        Optional<Admin> existingAdmin = adminRepository.findById(mobile);
+        Admin admin = null;
+        if(existingAdmin.isPresent()){
+            admin = existingAdmin.get();
+            if(!admin.getSecret().equals(secret)){
+                return new AdminLoginResponse(null, "please verify your submitted details!", null);
+            }
+        }
+
         List<Location> locations = new ArrayList<>();
         locations.add(new Location(locationName, UUID.randomUUID().toString()));
-        if(existing.isEmpty()){
+        Queue newQueue = new Queue();
+        newQueue.setLocationId(locations.getFirst().getLocationId());
+        newQueue.setLocationName(locationName);
+        newQueue.setOpenStatus("close");
+        newQueue.setTokens(new ArrayList<>());
+
+        if(existingAdmin.isEmpty()){
             Admin newAdmin = new Admin();
             newAdmin.setId(mobile);
             newAdmin.setName(name);
@@ -40,18 +59,16 @@ public class AdminServiceImpl implements AdminService {
             String newSessionId = UUID.randomUUID().toString();
             newAdmin.setSessionId(newSessionId);
             newAdmin.setLocations(locations);
-            repo.save(newAdmin);
+            adminRepository.save(newAdmin);
+            queueRepository.save(newQueue);
             return new AdminLoginResponse(newSessionId, "Hi "+ name +", zerowait wishes you happy businness & customers at your "+locationName, locations);
         }
 
-        Admin admin = existing.get();
-        if(!admin.getSecret().equals(secret)){
-            return new AdminLoginResponse(null, "please verify your submitted details!", null);
-        }
         boolean exists = admin.getLocations().stream().anyMatch(loc -> loc.getLocationName().equalsIgnoreCase(locationName));
         if(!exists){
             admin.getLocations().add(locations.getFirst());
-            repo.save(admin);
+            adminRepository.save(admin);
+            queueRepository.save(newQueue);
         }
         return new AdminLoginResponse(admin.getSessionId(), null, admin.getLocations());
     }
