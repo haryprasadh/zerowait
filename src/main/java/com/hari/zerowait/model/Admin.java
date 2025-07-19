@@ -1,17 +1,21 @@
 package com.hari.zerowait.model;
 
+import com.hari.zerowait.dto.Location;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Setter
+import java.util.List;
+
 @Getter
-@Document(collection="users")
-public class User {
+@Setter
+@Document(collection = "admins")
+public class Admin {
     @Id
     private Long id;
     private String name;
     private String secret;
     private String sessionId;
+    private List<Location> locations;
 }

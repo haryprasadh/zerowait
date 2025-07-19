@@ -1,7 +1,7 @@
 package com.hari.zerowait.controller;
 
-import com.hari.zerowait.dto.LoginRequest;
-import com.hari.zerowait.dto.LoginResponse;
+import com.hari.zerowait.dto.UserLoginRequest;
+import com.hari.zerowait.dto.UserLoginResponse;
 import com.hari.zerowait.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +18,9 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest){
-        LoginResponse loginResponse = userService.login(loginRequest);
-        if(loginResponse.getSessionId()==null)return ResponseEntity.badRequest().body(loginResponse);
-        return ResponseEntity.ok(loginResponse);
+    public ResponseEntity<UserLoginResponse> login(@RequestBody UserLoginRequest userLoginRequest){
+        UserLoginResponse userLoginResponse = userService.login(userLoginRequest);
+        if(userLoginResponse.getSessionId()==null)return ResponseEntity.badRequest().body(userLoginResponse);
+        return ResponseEntity.ok(userLoginResponse);
     }
 }

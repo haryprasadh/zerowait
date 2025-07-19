@@ -1,8 +1,8 @@
 package com.hari.zerowait.service;
 
-import com.hari.zerowait.dto.LoginRequest;
-import com.hari.zerowait.dto.LoginResponse;
+import com.hari.zerowait.dto.UserLoginRequest;
+import com.hari.zerowait.dto.UserLoginResponse;
 
 public interface UserService {
-    public LoginResponse login(LoginRequest loginRequest);
+    public UserLoginResponse login(UserLoginRequest userLoginRequest);
 }
