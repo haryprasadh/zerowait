@@ -3,6 +3,7 @@ package com.hari.zerowait.service.impl;
 import com.hari.zerowait.dto.AdminLoginRequest;
 import com.hari.zerowait.dto.AdminLoginResponse;
 import com.hari.zerowait.dto.Location;
+import com.hari.zerowait.dto.TokenRequest;
 import com.hari.zerowait.model.Admin;
 import com.hari.zerowait.model.Queue;
 import com.hari.zerowait.repository.AdminRepository;
@@ -72,4 +73,54 @@ public class AdminServiceImpl implements AdminService {
         }
         return new AdminLoginResponse(admin.getSessionId(), null, admin.getLocations());
     }
+
+    @Override
+    public Queue getAllTokens(TokenRequest tokenRequest) {
+        String mobile = tokenRequest.getMobile();
+        String sessionId = tokenRequest.getSessionId();
+        String locationId = tokenRequest.getLocationId();
+        Optional<Admin> existingAdmin = adminRepository.findById(mobile);
+        if(existingAdmin.isPresent()){
+            Admin admin = existingAdmin.get();
+            if(admin.getSessionId().equals(sessionId)){
+                boolean isOwner = admin.getLocations().stream().anyMatch(loc -> loc.getLocationId().equals(locationId));
+                if(isOwner){
+                    Optional<Queue> queue = queueRepository.findById(locationId);
+                    if(queue.isPresent()) return queue.get();
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String setStatus(TokenRequest tokenRequest) {
+        String mobile = tokenRequest.getMobile();
+        String sessionId = tokenRequest.getSessionId();
+        String locationId = tokenRequest.getLocationId();
+        Optional<Admin> existingAdmin = adminRepository.findById(mobile);
+        if(existingAdmin.isPresent()){
+            Admin admin = existingAdmin.get();
+            if(admin.getSessionId().equals(sessionId)){
+                boolean isOwner = admin.getLocations().stream().anyMatch(loc -> loc.getLocationId().equals(locationId));
+                if(isOwner){
+                    Optional<Queue> existing = queueRepository.findById(locationId);
+                    if(existing.isPresent()){
+                        Queue queue = existing.get();
+                        if(queue.getOpenStatus().equals("close")){
+                            queue.setOpenStatus("open");
+                            queueRepository.save(queue);
+                            return "open";
+                        }else{
+                            queue.setOpenStatus("close");
+                            queueRepository.save(queue);
+                            return "close";
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
 }
